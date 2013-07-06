@@ -22,4 +22,71 @@
  */
 -->
 <configuration>
+  <property>
+    <name>hbase.rootdir</name>
+    <value>file://${user.home}/hbase-${user.name}/tables</value>
+    <description>The directory shared by region servers and into
+    which HBase persists.  The URL should be 'fully-qualified'
+    to include the filesystem scheme.  For example, to specify the
+    HDFS directory '/hbase' where the HDFS instance's namenode is
+    running at namenode.example.org on port 9000, set this value to:
+    hdfs://namenode.example.org:9000/hbase.  By default HBase writes
+    into /tmp.  Change this configuration else all data will be lost
+    on machine restart.
+    </description>
+  </property>
+  <property>
+    <name>hbase.cluster.distributed</name>
+    <value>false</value>
+    <description>The mode the cluster will be in. Possible values are
+      false for standalone mode and true for distributed mode.  If
+      false, startup will run all HBase and ZooKeeper daemons together
+      in the one JVM.
+    </description>
+  </property>
+  <property>
+    <name>hbase.tmp.dir</name>
+    <value>${user.home}/hbase-${user.name}/tmp</value>
+    <description>Temporary directory on the local filesystem.
+    Change this setting to point to a location more permanent
+    than '/tmp' (The '/tmp' directory is often cleared on
+    machine restart).
+    </description>
+  </property>
+  
+  <!--
+  The following three properties are used together to create the list of
+  host:peer_port:leader_port quorum servers for ZooKeeper.
+  -->
+  <property>
+  	<name>hbase.zookeeper.quorum</name>
+  	<value>localhost</value>
+  	<description>Comma separated list of servers in the ZooKeeper Quorum.
+  	For example, "host1.mydomain.com,host2.mydomain.com,host3.mydomain.com".
+  	By default this is set to localhost for local and pseudo-distributed modes
+  	of operation. For a fully-distributed setup, this should be set to a full
+  	list of ZooKeeper quorum servers. If HBASE_MANAGES_ZK is set in hbase-env.sh
+  	this is the list of servers which we will start/stop ZooKeeper on.
+  	</description>
+　</property>
+  <!-- End of properties used to generate ZooKeeper host:port quorum list. -->
+
+  <!--
+  Beginning of properties that are directly mapped from ZooKeeper's zoo.cfg.
+  All properties with an "hbase.zookeeper.property." prefix are converted for
+  ZooKeeper's configuration. Hence, if you want to add an option from zoo.cfg,
+  e.g.  "initLimit=10" you would append the following to your configuration:
+    <property>
+      <name>hbase.zookeeper.property.initLimit</name>
+      <value>10</value>
+    </property>
+  -->
+  <property>
+    <name>hbase.zookeeper.property.dataDir</name>
+    <value>${hbase.tmp.dir}/zookeeper</value>
+    <description>Property from ZooKeeper's config zoo.cfg.
+    The directory where the snapshot is stored.
+    </description>
+  </property>
+
 </configuration>

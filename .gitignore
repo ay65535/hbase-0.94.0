@@ -8,16 +8,16 @@
 !src/main/webapp/WEB-INF/lib/*.jar
 
 # Eclipse
-!.classpath
-!.project
-!.settings/
+.classpath
+.project
+.settings/
 
 # Mac
 .DS_Store
 
 # Maven
 #log/
-!target/
+target/
 
 # Subversion
 !.svn

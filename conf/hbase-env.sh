@@ -23,18 +23,37 @@
 
 # The java implementation to use.  Java 1.6 required.
 # export JAVA_HOME=/usr/java/jdk1.6.0/
+case "${OSTYPE}" in
+    freebsd*|darwin*)
+        export JAVA_HOME=`/usr/libexec/java_home`
+        ;;
+    linux*|cygwin)
+        export JAVA_HOME='/usr/lib/jvm/java-6-sun/jre/'
+        ;;
+esac
+
 
 # Extra Java CLASSPATH elements.  Optional.
 # export HBASE_CLASSPATH=
 
 # The maximum amount of heap to use, in MB. Default is 1000.
 # export HBASE_HEAPSIZE=1000
+export HBASE_HEAPSIZE=2000
+# 「-XX:+UseConcMarkSweepGC」を有効に使う為にも、HeapSizeは2000以上の指定が推奨されているそうです。
 
 # Extra Java runtime options.
 # Below are what we set by default.  May only work with SUN JVM.
 # For more on why as well as other possible settings,
 # see http://wiki.apache.org/hadoop/PerformanceTuning
-export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
+case "${OSTYPE}" in
+    freebsd*|darwin*)
+        export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm= -Djava.security.krb5.kdc="
+        ;;
+    linux*|cygwin)
+        export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
+        ;;
+esac
+
 
 # Uncomment below to enable java garbage collection logging in the .out file.
 # export HBASE_OPTS="$HBASE_OPTS -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps $HBASE_GC_OPTS" 
@@ -66,6 +85,7 @@ export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
 
 # Where log files are stored.  $HBASE_HOME/logs by default.
 # export HBASE_LOG_DIR=${HBASE_HOME}/logs
+export HBASE_LOG_DIR=${HOME}/hbase-${user.name}/logs
 
 # Enable remote JDWP debugging of major HBase processes. Meant for Core Developers 
 # export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8070"
@@ -88,4 +108,4 @@ export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
 # export HBASE_SLAVE_SLEEP=0.1
 
 # Tell HBase whether it should manage it's own instance of Zookeeper or not.
-# export HBASE_MANAGES_ZK=true
+export HBASE_MANAGES_ZK=true
