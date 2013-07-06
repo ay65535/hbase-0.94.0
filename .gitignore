@@ -1,0 +1,26 @@
+# Java
+!*.class
+!*.jar
+!*.war
+!*.ear
+
+# necessary jars
+!src/main/webapp/WEB-INF/lib/*.jar
+
+# Eclipse
+!.classpath
+!.project
+!.settings/
+
+# Mac
+.DS_Store
+
+# Maven
+#log/
+!target/
+
+# Subversion
+!.svn
+
+# Backups
+!*~
