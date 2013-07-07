@@ -47,7 +47,8 @@ export HBASE_HEAPSIZE=2000
 # see http://wiki.apache.org/hadoop/PerformanceTuning
 case "${OSTYPE}" in
     freebsd*|darwin*)
-        export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm= -Djava.security.krb5.kdc="
+        #export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm= -Djava.security.krb5.kdc="
+        export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm=OX.AC.UK -Djava.security.krb5.kdc=kdc0.ox.ac.uk:kdc1.ox.ac.uk"
         ;;
     linux*|cygwin)
         export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
@@ -108,4 +109,4 @@ export HBASE_LOG_DIR="${HOME}/hbase-${USER}/logs"
 # export HBASE_SLAVE_SLEEP=0.1
 
 # Tell HBase whether it should manage it's own instance of Zookeeper or not.
-export HBASE_MANAGES_ZK=true
+# export HBASE_MANAGES_ZK=true

@@ -58,7 +58,7 @@
   The following three properties are used together to create the list of
   host:peer_port:leader_port quorum servers for ZooKeeper.
   -->
-  <property>
+  <!-- <property>
   	<name>hbase.zookeeper.quorum</name>
   	<value>localhost</value>
   	<description>Comma separated list of servers in the ZooKeeper Quorum.
@@ -68,7 +68,7 @@
   	list of ZooKeeper quorum servers. If HBASE_MANAGES_ZK is set in hbase-env.sh
   	this is the list of servers which we will start/stop ZooKeeper on.
   	</description>
-　</property>
+  </property> -->
   <!-- End of properties used to generate ZooKeeper host:port quorum list. -->
 
   <!--
