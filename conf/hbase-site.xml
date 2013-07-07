@@ -38,10 +38,11 @@
   <property>
     <name>hbase.cluster.distributed</name>
     <value>false</value>
-    <description>The mode the cluster will be in. Possible values are
-      false for standalone mode and true for distributed mode.  If
-      false, startup will run all HBase and ZooKeeper daemons together
-      in the one JVM.
+    <description>クラスタの実行モード。次のいずれかの値を指定します。
+      false: スタンドアロンモードと疑似分散モードで、ZooKeeper を HBase が
+      管理する場合。
+      true: ZooKeeper クォーラムを HBase が管理しない完全分散モードの場合
+      (hbase-env.sh を参照)。
     </description>
   </property>
   <property>
@@ -53,6 +54,50 @@
     machine restart).
     </description>
   </property>
+  <!-- <property>
+    <name>hbase.regionserver.optionallogflushinterval</name>
+    <value>1000</value>
+    <description>Sync the HLog to the HDFS after this interval if it has not
+    accumulated enough entries to trigger a sync. Default 1 second. Units:
+    milliseconds.
+    </description>
+  </property>
+  <property>
+    <name>hbase.hregion.memstore.flush.size</name>
+    <value>134217728</value>
+    <description>
+    Memstore will be flushed to disk if size of the memstore
+    exceeds this number of bytes.  Value is checked by a thread that runs
+    every hbase.server.thread.wakefrequency.
+    </description>
+  </property>
+  <property>
+    <name>hbase.hregion.preclose.flush.size</name>
+    <value>5242880</value>
+    <description>
+      If the memstores in a region are this size or larger when we go
+      to close, run a "pre-flush" to clear out memstores before we put up
+      the region closed flag and take the region offline.  On close,
+      a flush is run under the close flag to empty memory.  During
+      this time the region is offline and we are not taking on any writes.
+      If the memstore content is large, this flush could take a long time to
+      complete.  The preflush is meant to clean out the bulk of the memstore
+      before putting up the close flag and taking the region offline so the
+      flush that runs under the close flag has little to do.
+    </description>
+  </property>
+  <property>
+    <name>hbase.hregion.memstore.block.multiplier</name>
+    <value>2</value>
+    <description>
+    Block updates if memstore has hbase.hregion.block.memstore
+    time hbase.hregion.flush.size bytes.  Useful preventing
+    runaway memstore during spikes in update traffic.  Without an
+    upper-bound, memstore fills such that when it flushes the
+    resultant flush files take a long time to compact or split, or
+    worse, we OOME.
+    </description>
+  </property> -->
   
   <!--
   The following three properties are used together to create the list of

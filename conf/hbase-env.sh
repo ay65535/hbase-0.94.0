@@ -38,7 +38,7 @@ esac
 
 # The maximum amount of heap to use, in MB. Default is 1000.
 # export HBASE_HEAPSIZE=1000
-export HBASE_HEAPSIZE=2000
+export HBASE_HEAPSIZE=3000
 # 「-XX:+UseConcMarkSweepGC」を有効に使う為にも、HeapSizeは2000以上の指定が推奨されているそうです。
 
 # Extra Java runtime options.
