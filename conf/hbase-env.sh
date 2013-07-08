@@ -28,10 +28,9 @@ case "${OSTYPE}" in
         export JAVA_HOME=`/usr/libexec/java_home`
         ;;
     linux*|cygwin)
-        export JAVA_HOME='/usr/lib/jvm/java-6-sun/jre/'
+        export JAVA_HOME='/usr/lib/jvm/java-6-sun/jre'
         ;;
 esac
-
 
 # Extra Java CLASSPATH elements.  Optional.
 # export HBASE_CLASSPATH=
@@ -54,7 +53,6 @@ case "${OSTYPE}" in
         export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
         ;;
 esac
-
 
 # Uncomment below to enable java garbage collection logging in the .out file.
 # export HBASE_OPTS="$HBASE_OPTS -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps $HBASE_GC_OPTS" 
