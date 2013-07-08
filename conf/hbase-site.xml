@@ -97,8 +97,17 @@
     resultant flush files take a long time to compact or split, or
     worse, we OOME.
     </description>
-  </property> -->
-  
+  </property>
+  <property>
+    <name>zookeeper.znode.rootserver</name>
+    <value>root-region-server</value>
+    <description>Path to ZNode holding root region location. This is written by
+      the master and read by clients and region servers. If a relative path is
+      given, the parent folder will be ${zookeeper.znode.parent}. By default,
+      this means the root location is stored at /hbase/root-region-server.
+    </description>
+  <property> -->
+
   <!--
   The following three properties are used together to create the list of
   host:peer_port:leader_port quorum servers for ZooKeeper.
@@ -133,5 +142,12 @@
     The directory where the snapshot is stored.
     </description>
   </property>
+  <!-- <property>
+    <name>hbase.zookeeper.property.clientPort</name>
+    <value>2181</value>
+    <description>Property from ZooKeeper's config zoo.cfg.
+      The port at which the clients will connect.
+    </description>
+  </property> -->
 
 </configuration>
