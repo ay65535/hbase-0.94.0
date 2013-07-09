@@ -28,7 +28,7 @@ case "${OSTYPE}" in
         export JAVA_HOME=`/usr/libexec/java_home`
         ;;
     linux*|cygwin)
-        export JAVA_HOME='/usr/lib/jvm/java-6-sun/jre/'
+        export JAVA_HOME='/usr/lib/jvm/java-6-sun/jre'
         ;;
 esac
 
