@@ -49,6 +49,7 @@ case "${OSTYPE}" in
     freebsd*|darwin*)
         #export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm= -Djava.security.krb5.kdc="
         export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm=OX.AC.UK -Djava.security.krb5.kdc=kdc0.ox.ac.uk:kdc1.ox.ac.uk"
+        #export HBASE_OPTS="-XX:+UseConcMarkSweepGC -Djava.security.krb5.realm=OX.AC.UK -Djava.security.krb5.kdc=kdc0.ox.ac.uk:kdc1.ox.ac.uk -Djava.awt.headless=true"
         ;;
     linux*|cygwin)
         export HBASE_OPTS="-XX:+UseConcMarkSweepGC"
