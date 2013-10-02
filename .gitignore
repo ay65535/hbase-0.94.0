@@ -17,10 +17,13 @@
 
 # Maven
 #log/
-target/
+/target/
 
 # Subversion
 !.svn
 
 # Backups
 *~
+
+# hbase
+test/
