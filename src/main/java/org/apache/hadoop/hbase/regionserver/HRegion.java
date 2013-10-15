@@ -2136,6 +2136,7 @@ public class HRegion implements HeapSize { // , Writable{
           (this.regionInfo.isMetaRegion() ||
            !this.htableDescriptor.isDeferredLogFlush())) {
         this.log.sync(txid);
+        LOG.info("@@@ log.sync()が呼び出されました！(doMiniBatchPut()内) @@@");
       }
       walSyncSuccessful = true;
       // ------------------------------------------------------------------

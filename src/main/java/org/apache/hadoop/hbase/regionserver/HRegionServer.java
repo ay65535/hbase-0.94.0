@@ -3402,6 +3402,7 @@ public class HRegionServer implements HRegionInterface, HBaseRPCErrorHandler,
 
           OperationStatus[] codes =
               region.put(putsWithLocks.toArray(new Pair[]{}));
+          LOG.info("@@@ region.put()が呼び出されました！ @@@");
 
           for( int i = 0 ; i < codes.length ; i++) {
             OperationStatus code = codes[i];
