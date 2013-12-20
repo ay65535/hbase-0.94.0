@@ -2135,8 +2135,22 @@ public class HRegion implements HeapSize { // , Writable{
       if (walEdit.size() > 0 &&
           (this.regionInfo.isMetaRegion() ||
            !this.htableDescriptor.isDeferredLogFlush())) {
+    	  		if (!this.htableDescriptor.isDeferredLogFlush()) {
+					LOG.info("@@@ deferred log flush is: false @@@");
+				} else {
+					LOG.info("@@@ deferred log flush is: true @@@");
+				}
+				String metaTableString = "";
+				if (this.regionInfo.isMetaRegion()) {
+					metaTableString = ".META. リージョンです!";
+				} else if (this.regionInfo.isRootRegion()) {
+					metaTableString = "-ROOT- リージョンです!";
+				}
+				LOG.info("@@@ log.sync() が呼ばれます！ (doMini()内) "
+						+ metaTableString + " @@@");
+          this.log.initWALTime();
         this.log.sync(txid);
-        LOG.info("@@@ log.sync()が呼び出されました！(doMiniBatchPut()内) @@@");
+        //this.log.printWALTime();
       }
       walSyncSuccessful = true;
       // ------------------------------------------------------------------
@@ -4201,6 +4215,7 @@ public class HRegion implements HeapSize { // , Writable{
         if (walEdit.size() > 0 &&
             (this.regionInfo.isMetaRegion() ||
              !this.htableDescriptor.isDeferredLogFlush())) {
+					LOG.info("@@@ log.sync() が呼ばれます！ (mutateRowsWithLocks()内) @@@");
           this.log.sync(txid);
         }
         walSyncSuccessful = true;
@@ -4393,6 +4408,7 @@ public class HRegion implements HeapSize { // , Writable{
         releaseRowLock(lid);
       }
       if (writeToWAL) {
+				LOG.info("@@@ log.sync() が呼ばれます！ (append()内) @@@");
         this.log.sync(txid); // sync the transaction log outside the rowlock
       }
     } finally {
@@ -4508,6 +4524,7 @@ public class HRegion implements HeapSize { // , Writable{
         releaseRowLock(lid);
       }
       if (writeToWAL) {
+				LOG.info("@@@ log.sync() が呼ばれます！ (increment()内) @@@");
         this.log.sync(txid); // sync the transaction log outside the rowlock
       }
     } finally {
@@ -4605,6 +4622,7 @@ public class HRegion implements HeapSize { // , Writable{
         releaseRowLock(lid);
       }
       if (writeToWAL) {
+				LOG.info("@@@ log.sync() が呼ばれます！ (incrementColumnValue()内) @@@");
         this.log.sync(txid); // sync the transaction log outside the rowlock
       }
     } finally {

@@ -111,6 +111,14 @@ import org.apache.hadoop.util.StringUtils;
  *
  */
 public class HLog implements Syncable {
+	/* for eval */
+	public AtomicLong allsstep = new AtomicLong(0);
+	public AtomicLong step1 = new AtomicLong(0);
+	public AtomicLong step2 = new AtomicLong(0);
+	public AtomicLong step3 = new AtomicLong(0);
+	public AtomicLong step4 = new AtomicLong(0);
+	public AtomicLong step5 = new AtomicLong(0);
+
   static final Log LOG = LogFactory.getLog(HLog.class);
   public static final byte [] METAFAMILY = Bytes.toBytes("METAFAMILY");
   static final byte [] METAROW = Bytes.toBytes("METAROW");
@@ -834,6 +842,7 @@ public class HLog implements Syncable {
                    " waiting for transactions to get synced " +
                    " total " + this.unflushedEntries.get() +
                    " synced till here " + syncedTillHere);
+          LOG.info("@@@ log.sync() が呼ばれます！ (cleanupCurrentWriter()内) @@@");
           sync();
         }
         this.writer.close();
@@ -1192,7 +1201,10 @@ public class HLog implements Syncable {
             if (unflushedEntries.get() <= syncedTillHere) {
               Thread.sleep(this.optionalFlushInterval);
             }
+            //LOG.info("@@@ log.sync() が呼ばれます！ (LogSyncerスレッド内) @@@");
+            //initWALTime();
             sync();
+            //printWALTime();
           } catch (IOException e) {
             LOG.error("Error while syncing, requesting close of hlog ", e);
             requestLogRoll();
@@ -1242,6 +1254,7 @@ public class HLog implements Syncable {
 
   // sync all transactions upto the specified txid
   private void syncer(long txid) throws IOException {
+		long all = System.nanoTime();
     Writer tempWriter;
     synchronized (this.updateLock) {
       if (this.closed) return;
@@ -1252,6 +1265,9 @@ public class HLog implements Syncable {
     if (txid <= this.syncedTillHere) {
       return;
     }
+			step1.addAndGet(System.nanoTime() - all);
+			long tstep2 = System.nanoTime();
+			
     try {
       long doneUpto;
       long now = System.currentTimeMillis();
@@ -1265,6 +1281,32 @@ public class HLog implements Syncable {
         }
         doneUpto = this.unflushedEntries.get();
         List<Entry> pending = logSyncerThread.getPendingWrites();
+        // --- pending可視化--------- //
+		int size = pending.size();
+		LOG.info("@@@@ pending[].size() is: " + size + " @@@@");
+		HLogKey key;
+		WALEdit edit;
+		int i = 0;
+		for (Entry e : pending) {
+			i++;
+			key = e.getKey();
+			edit = e.getEdit();
+			LOG.info("@@@@ pending[" + i + ":" + key.toString() + "]: "+ edit.toString());
+			size = edit.size();
+			LOG.info("@@@@ pending[" + i + "].edit[].size():" + size + " @@@@");
+			int j = 0;
+			for (KeyValue kv : edit.getKeyValues()) {
+				j++;
+				if (++j == 1) {
+			    	  LOG.info("@@@@@ pending[" + i + "].edit[" + j + "]: " + kv.toString() + " @@@@@");
+			    } else if (j == size) {
+			    	  LOG.info("@@@@@ pending[*].edit[*]: ...");
+			    	  LOG.info("@@@@@ pending[" + i + "].edit[" + j + "]: " + kv.toString() + " @@@@@");
+				}
+			}
+		}
+		// ----------------------- //
+
         try {
           logSyncerThread.hlogFlush(tempWriter, pending);
         } catch(IOException io) {
@@ -1275,10 +1317,16 @@ public class HLog implements Syncable {
           }
         }
       }
+				
+				step2.addAndGet(System.nanoTime() - tstep2);
+				
       // another thread might have sync'ed avoid double-sync'ing
       if (txid <= this.syncedTillHere) {
+    	  LOG.warn("@@@ wal.HLog.syncer(): another thread might have sync'ed avoid double-sync'ing");
+    	  printWALTime();
         return;
       }
+				long tstep3 = System.nanoTime();
       try {
         tempWriter.sync();
       } catch(IOException io) {
@@ -1289,6 +1337,8 @@ public class HLog implements Syncable {
         }
       }
       this.syncedTillHere = Math.max(this.syncedTillHere, doneUpto);
+				step3.addAndGet(System.nanoTime() - tstep3);
+				long tstep4 = System.nanoTime();
 
       syncTime.inc(System.currentTimeMillis() - now);
       if (!this.logRollRunning) {
@@ -1301,11 +1351,16 @@ public class HLog implements Syncable {
           LOG.debug("Log roll failed and will be retried. (This is not an error)");
         }
       }
+				step4.addAndGet(System.nanoTime() - tstep4);
     } catch (IOException e) {
+				long tstep5 = System.nanoTime();
       LOG.fatal("Could not sync. Requesting close of hlog", e);
       requestLogRoll();
+				step5.addAndGet(System.nanoTime() - tstep5);
       throw e;
     }
+			allsstep.addAndGet(System.nanoTime() - all);
+			printWALTime();
   }
 
   private void checkLowReplication() {
@@ -1886,4 +1941,22 @@ public class HLog implements Syncable {
       System.exit(-1);
     }
   }
+
+public void initWALTime() {
+	/* for eval */
+	allsstep = new AtomicLong(0);
+	step1 = new AtomicLong(0);
+	step2 = new AtomicLong(0);
+	step3 = new AtomicLong(0);
+	step4 = new AtomicLong(0);
+	step5 = new AtomicLong(0);
+}
+
+public void printWALTime() {
+	 LOG.warn( "@@@ wal.HLog.syncer(1): "+  String.valueOf(step1));
+	 LOG.warn( "@@@ wal.HLog.syncer(2): "+  String.valueOf(step2));
+	 LOG.warn( "@@@ wal.HLog.syncer(3): "+  String.valueOf(step3));
+	 LOG.warn( "@@@ wal.HLog.syncer(4): "+  String.valueOf(step4));
+	 LOG.warn( "@@@ wal.HLog.syncer(5): "+  String.valueOf(step5));
+	 LOG.warn( "@@@ wal.HLog.syncer(all): "+  String.valueOf(allsstep));}
 }

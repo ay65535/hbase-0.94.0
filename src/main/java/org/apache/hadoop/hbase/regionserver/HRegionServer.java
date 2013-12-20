@@ -3324,19 +3324,46 @@ public class HRegionServer implements HRegionInterface, HBaseRPCErrorHandler,
   @Override
   public <R> MultiResponse multi(MultiAction<R> multi) throws IOException {
     checkOpen();
+		LOG.warn("@@@ ▼▼▼ multi()開始 ▼▼▼ @@@");
+		String hostname = Strings.domainNamePointerToHostName(DNS.getDefaultHost(
+				conf.get("hbase.regionserver.dns.interface", "default"),
+				conf.get("hbase.regionserver.dns.nameserver", "default")));
+		LOG.info("@@@ hostname is: " + hostname);
+		
     MultiResponse response = new MultiResponse();
+    int size = multi.actions.size();
+	LOG.info("@@@ Map<byte[], List<Action<R>>> multi.actions[].size(): " + size);
+    int j=0;
     for (Map.Entry<byte[], List<Action<R>>> e : multi.actions.entrySet()) {
       byte[] regionName = e.getKey();
       List<Action<R>> actionsForRegion = e.getValue();
+      
+      if (++j == 1) {
+    	  LOG.info("@@@ byte[] multi.actions.["+ j +"].regionName: " + Bytes.toStringBinary(regionName));
+      } else if (j == size) {
+    	  LOG.info("@@@ byte[] multi.actions.[*].regionName: ...");
+    	  LOG.info("@@@ byte[] multi.actions.["+ j +"].regionName: " + Bytes.toStringBinary(regionName));
+	  }
+      
       // sort based on the row id - this helps in the case where we reach the
       // end of a region, so that we don't have to try the rest of the
       // actions in the list.
       Collections.sort(actionsForRegion);
       Row action;
       List<Action<R>> puts = new ArrayList<Action<R>>();
+      int k=0;
+      size = actionsForRegion.size();
+      LOG.info("@@@ List<Action<R>> multi.actions["+j+"].actionsForRegion[].size() is: " + size);
       for (Action<R> a : actionsForRegion) {
         action = a.getAction();
         int originalIndex = a.getOriginalIndex();
+        
+        if (++k == 1) {
+        	LOG.info("@@@ multi.actions["+j+"].actionsForRegion["+k+"].action: " + action);
+        } else if (k == size) {
+        	LOG.info("@@@ multi.actions[*].actionsForRegion[*].action: ...");
+        	LOG.info("@@@ multi.actions["+j+"].actionsForRegion["+k+"].action: " + action);
+		}
 
         try {
           if (action instanceof Delete) {
@@ -3385,9 +3412,19 @@ public class HRegionServer implements HRegionInterface, HBaseRPCErrorHandler,
 
           List<Pair<Put,Integer>> putsWithLocks =
               Lists.newArrayListWithCapacity(puts.size());
+          k=0;
+          size = puts.size();
+          LOG.info("@@@ List<Action<R>> multi.actions["+j+"].puts[].size() is: " + size);
           for (Action<R> a : puts) {
             Put p = (Put) a.getAction();
 
+            if (++k == 1) {
+            	LOG.info("@@@ List<Action<R>> multi.actions["+j+"].puts["+k+"].p(=action): " + p.toString() );
+            } else if (k == size) {
+            	LOG.info("@@@ List<Action<R>> multi.actions["+j+"].puts[*].p(=action): ...");
+            	LOG.info("@@@ List<Action<R>> multi.actions["+j+"].puts["+k+"].p(=action): " + p.toString() );
+    		}
+						
             Integer lock;
             try {
               lock = getLockFromId(p.getLockId());
@@ -3400,6 +3437,39 @@ public class HRegionServer implements HRegionInterface, HBaseRPCErrorHandler,
 
           this.requestCount.addAndGet(puts.size());
 
+          k=0;
+          size =  putsWithLocks.size();
+		  LOG.info("@@@ putsWithLocks.size() is: " + size + " @@@");
+//			if (10 < n) {
+//				n = 10;
+//			} 
+//			LOG.info("@@@ putsWithLocksの中身は、 @@@");
+//					for ( int i1 = 0; i1 < n; ++i1 ) {
+				//LOG.info("@@@@ " + putsWithLocks.get(i).getFirst().toJSON() + " @@@@");
+				//LOG.info("@@@@ " + putsWithLocks.get(i).getFirst().getFamilyMap() + " @@@@");
+				//LOG.info("@@@@ " + putsWithLocks.get(i).getFirst().get(Bytes.toBytes("info"), Bytes.toBytes("server")) + " @@@@");
+//						Map<byte[], List<KeyValue>> aFamilyMap = putsWithLocks.get(i1).getFirst().getFamilyMap();
+//						int j1 = 0;
+//				for (Entry<byte[], List<KeyValue>> entry : aFamilyMap.entrySet()) {
+//					int size = entry.getValue().size();
+//							LOG.info("@@@@ aFamilyMap.entry[" + j1 + "].getValue().size() is: " + size + " @@@@");
+//					for (int k1 = 0; k1 < size; k1++) {
+//						KeyValue kv = entry.getValue().get(k1);
+//								LOG.info("@@@@@ " + j1 + ":" + k1 + ": " + kv.toString() + " @@@@@");
+//						if (9 <= k1) {
+//									LOG.info("@@@@@ " + j1 + ":X: ... @@@@@");
+//							LOG.info("@@@@ aFamilyMap.entry[X].getValue().size() is: ... @@@@");
+//							break;
+//						}
+//					}
+//							j1++;
+//				}
+//			}
+//			if (10 < n) {
+//				LOG.info("@@@@ ... @@@@");
+//			}
+//			LOG.info("@@@ です。 @@@");
+			LOG.info("@@@ region.put()が呼び出されます！ @@@");
           OperationStatus[] codes =
               region.put(putsWithLocks.toArray(new Pair[]{}));
           LOG.info("@@@ region.put()が呼び出されました！ @@@");
@@ -3428,6 +3498,7 @@ public class HRegionServer implements HRegionInterface, HBaseRPCErrorHandler,
         }
       }
     }
+    LOG.warn("@@@ ▲▲▲ multi()終了 ▲▲▲ @@@");
     return response;
   }
 
