@@ -27,5 +27,4 @@
 
 # hbase
 test/
-conf/
-
+/conf/
