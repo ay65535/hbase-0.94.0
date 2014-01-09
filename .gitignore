@@ -27,3 +27,5 @@
 
 # hbase
 test/
+conf/
+
