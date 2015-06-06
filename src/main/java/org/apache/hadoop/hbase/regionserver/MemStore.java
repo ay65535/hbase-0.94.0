@@ -126,10 +126,10 @@ public class MemStore implements HeapSize {
 
   void dump() {
     for (KeyValue kv: this.kvset) {
-      LOG.info(kv);
+      LOG.info("@@@" + kv + "@@@");
     }
     for (KeyValue kv: this.snapshot) {
-      LOG.info(kv);
+      LOG.info("@@@" + kv + "@@@");
     }
   }
 
@@ -213,6 +213,7 @@ public class MemStore implements HeapSize {
       KeyValue toAdd = maybeCloneWithAllocator(kv);
       return internalAdd(toAdd);
     } finally {
+      dump();
       this.lock.readLock().unlock();
     }
   }
